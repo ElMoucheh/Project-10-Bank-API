@@ -68,13 +68,14 @@ paths:
       parameters:
         - in: header
           name: Authorization
+          type: string
           description: Attach Bearer JWT token
           required: true
       produces:
         - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
@@ -91,6 +92,7 @@ paths:
       parameters:
         - in: header
           name: Authorization
+          type: string
           description: Attach Bearer JWT token
           required: true
         - in: body
@@ -103,18 +105,99 @@ paths:
         - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
+  /transactions:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get all transactions
+      description: API to fetch all transactions for the current user.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transactions fetched successfully
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaction'
+        '404':
+          description: Transactions not found
+        '500':
+          description: Internal Server Error
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Create a new transaction
+      description: API to add a new transaction.
+      parameters:
+        - in: body
+          name: body
+          description: Transaction payload
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionCreate'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Transaction created successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+  /transactions/{id}:
+    patch:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Update a transaction
+      description: API to update specific fields of a transaction.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: ID of the transaction to update.
+        - in: body
+          name: body
+          description: Updated transaction details
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionUpdate'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal Server Error
+
 securityDefinitions:
   Bearer:
     type: apiKey
     name: Authorization
     in: header
+
 definitions:
   User:
     properties:
@@ -164,3 +247,56 @@ definitions:
         type: string
       lastName:
         type: string
+  Transaction:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique ID of the transaction.
+      accountId:
+        type: string
+        description: ID of the account associated with the transaction.
+      amount:
+        type: number
+        description: Amount of the transaction.
+      type:
+        type: string
+        description: Type of the transaction (deposit or withdrawal).
+      date:
+        type: string
+        format: date
+        description: Date of the transaction (format YYYY-MM-DD).
+      description:
+        type: string
+        description: Description of the transaction.
+  TransactionCreate:
+    type: object
+    properties:
+      accountId:
+        type: string
+        description: ID of the account for the transaction.
+      amount:
+        type: number
+        description: Amount of the transaction.
+      type:
+        type: string
+        description: Type of transaction (deposit or withdrawal).
+      description:
+        type: string
+        description: Description of the transaction.
+      date:
+        type: string
+        format: date
+        description: Date of the transaction (format YYYY-MM-DD).
+  TransactionUpdate:
+    type: object
+    properties:
+      amount:
+        type: number
+        description: Updated amount of the transaction.
+      description:
+        type: string
+        description: Updated description of the transaction.
+      type:
+        type: string
+        description: Updated type of the transaction (deposit or withdrawal).
